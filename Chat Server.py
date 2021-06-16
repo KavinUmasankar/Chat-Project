@@ -11,43 +11,45 @@ host = '192.168.1.96'
 port = 5353
 threadCount = 0
 
-server = socket.socket()
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 client1 = ""
 client2 = ""
 
-current = ["", ""]
-last = ["", ""]
+clients = []
 
 def threaded_client(connection, client):
     global client1
     global client2
+    global sendTo0
+    global sendTo1
+    
+    
     
     connection.send(str.encode(str(client)))
     
     while True:
         data = connection.recv(2048)
-        if not data:
-            break
-        else:
+        if data:
             data = data.decode("utf-8")
             
-        if len(data) > 5 and data[0:4] == "name":
-            if client == 0:
-                client1 = data[4:]
-            if client == 1:
-                client2 = data[4:]
-        
+            if len(data) > 5 and data[0:4] == "name":
+                if client == 0:
+                    client1 = data[4:]
+                if client == 1:
+                    client2 = data[4:]
+                        
+            else:
+                if client == 0:
+                    reply =  client1 + ": " + data + "\n"
+                if client == 1:
+                    reply =  client2 + ": " + data + "\n"
+                for user in clients:
+                    user.sendall(str.encode(reply))
+                
         else:
-            if client == 0:
-                current[1] = (client1 * (client == 0)) + (client2 * (client == 1)) + ": " + data
-            if client == 1:
-                current[0] = (client1 * (client == 0)) + (client2 * (client == 1)) + ": " + data
-            reply = current[abs(client - 1)]
-            print(reply)
-            connection.sendall(str.encode(reply))
-        last[0] = current[0]
-        last[1] = current[1]
+            break
+
     connection.close()
 
 try:
@@ -59,6 +61,7 @@ server.listen(2)
     
 while True:
     conn, addr = server.accept()
+    clients.append(conn)
     print('Connected to: ', addr)
     start_new_thread(threaded_client, (conn, threadCount))
     threadCount += 1
