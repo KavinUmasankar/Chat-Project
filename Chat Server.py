@@ -16,6 +16,9 @@ server = socket.socket()
 client1 = ""
 client2 = ""
 
+current = ["", ""]
+last = ["", ""]
+
 def threaded_client(connection, client):
     global client1
     global client2
@@ -36,8 +39,15 @@ def threaded_client(connection, client):
                 client2 = data[4:]
         
         else:
-            reply = (client1 * (client == 0)) + (client2 * (client == 1)) + ": " + data
+            if client == 0:
+                current[1] = (client1 * (client == 0)) + (client2 * (client == 1)) + ": " + data
+            if client == 1:
+                current[0] = (client1 * (client == 0)) + (client2 * (client == 1)) + ": " + data
+            reply = current[abs(client - 1)]
+            print(reply)
             connection.sendall(str.encode(reply))
+        last[0] = current[0]
+        last[1] = current[1]
     connection.close()
 
 try:
