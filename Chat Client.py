@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Jun 15 18:26:05 2021
-
-@author: kavin
-"""
 import socket
 import tkinter as tk
 from tkinter import ttk
