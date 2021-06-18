@@ -10,10 +10,6 @@ from datetime import datetime
 currentTime = ""
 currentDate = ""
 
-client = socket.socket()
-host = '192.168.1.96'
-port = 5353
-
 user = ""
 
 form = tk.Tk()
@@ -24,22 +20,33 @@ name.insert(0, "Anonymous User")
 name.grid(column = 1, row = 0)
 
 def submit():
+    global client        
+    client = socket.socket()
+    host = '192.168.1.96'
+    port = 5353
+    
     global user
     user = name.get()
-    form.destroy()
+        
+    try:
+        client.connect((host, port))
+    except socket.error as e:
+        print(str(e))
+    
+    client.send(str.encode("name" + user))
+    
+    answer = client.recv(2048).decode("utf-8")
+    print(answer)
+    if answer == "No":
+        ttk.Label(form, text = "That username is already taken!").grid(column = 0, row = 2)
+        client.close()
+        
+    elif answer == "Yes":
+        form.destroy()
 
 ttk.Button(form, text = "Enter!", command = submit).grid(column = 0, row = 1)
 
 form.mainloop()
-
-try:
-    client.connect((host, port))
-except socket.error as e:
-    print(str(e))
-    
-userid = client.recv(2048).decode("utf-8")
-
-client.send(str.encode("name" + user))
 
 win = tk.Tk()
 win.title("Chat Project")
@@ -53,7 +60,7 @@ chat.grid(column = 0, row = 1)
 
 text_area.configure(state = "disabled")
 
-ttk.Label(win, text = "When leaving, please click the 'Exit' button and not the red X!").grid(column = 0, row = 5)
+ttk.Label(win, text = "When leaving, please click the 'Exit' button. DO NOT CLOSE THE WINDOW!").grid(column = 0, row = 5)
 
 def enter():
     if len(chat.get("1.0", tk.END)):
