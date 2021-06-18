@@ -85,7 +85,7 @@ try:
 except socket.error as e:
     print(str(e))
 
-server.listen(2)
+server.listen()
 
 app = App()
 
