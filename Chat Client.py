@@ -5,6 +5,10 @@ from tkinter import scrolledtext
 import threading
 import time
 import sys
+from datetime import datetime
+
+currentTime = ""
+currentDate = ""
 
 client = socket.socket()
 host = '192.168.1.96'
@@ -78,7 +82,10 @@ class App(threading.Thread):
         self.start()
     
     def run(self):
+        global currentDate
+        global currentTime
         data = self.person.recv(2048)
+        firstMessage = True
         while True:
             try:
                 data = self.person.recv(2048)
@@ -87,9 +94,23 @@ class App(threading.Thread):
                     if data[0:7] == "usernum":
                         self.label.config(text = "Users: " + data[7:])
                     else:
+                        today = datetime.today().strftime("%B, %d, %Y")
+                        now = datetime.now().strftime("%I:%M %p")
                         self.box.configure(state = "normal")
-                        self.box.insert(tk.INSERT, data)
+                        if currentDate != today:
+                            self.box.insert(tk.END, "\n" + today + "\n")
+                        if currentTime != now:
+                            if currentDate != today:
+                                self.box.insert(tk.END, now + "\n")
+                            else:
+                                self.box.insert(tk.END, "\n" + now + "\n")
+                        self.box.insert(tk.END, data)
+                        if self.box.get("0.0", "1.0").strip() == "" and firstMessage:
+                            self.box.delete("0.0", "2.0")
                         self.box.configure(state = "disabled")
+                        firstMessage = False
+                        currentDate = today
+                        currentTime = now
             except:
                 break
             
