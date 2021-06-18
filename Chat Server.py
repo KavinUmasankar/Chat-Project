@@ -1,7 +1,6 @@
 import socket
 from _thread import *
 import threading
-from datetime import datetime
 import time
 
 currentDate = ""
@@ -49,28 +48,25 @@ def threaded_client(connection, client):
             data = connection.recv(2048)
             if data:
                 if data.decode("utf-8").strip():
-                    data = data.decode("utf-8").strip()                
+                    data = data.decode("utf-8").strip()
+                    
+                    parse = list(data)
+                    parse.append("")
+                    for x in range(len(parse)):
+                        if parse[x] == "\n":
+                            parse.insert(x + 1, "    ")
+                    
+                    data = ""
+                    for char in parse:
+                        data += char
+                    
                     if len(data) > 5 and data[0:4] == "name":
                         clientnames[client] = data[4:]
                     else:
                         reply = clientnames[client] + ": \n    " + data + "\n"
-                        today = datetime.today().strftime("%B, %d, %Y")
-                        now = datetime.now().strftime("%I:%M %p")
                         for user in clients:
                             if user:
-                                if currentDate != today:
-                                    user.sendall(str.encode("\n" + today + "\n"))
-                                    
-                                if currentTime != now:
-                                    if currentDate != today:
-                                        user.sendall(str.encode(now + "\n"))
-                                    else:
-                                        user.sendall(str.encode("\n" + now + "\n"))
                                 user.sendall(str.encode(reply))
-                        if currentDate != today:
-                            currentDate = today
-                        if currentTime != now:
-                            currentTime = now
                 print(clients)
             else:
                 clients[client] = ""
