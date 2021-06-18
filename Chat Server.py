@@ -60,11 +60,14 @@ def threaded_client(connection, client):
                             if user:
                                 if currentDate != today:
                                     user.sendall(str.encode(today + "\n"))
-                                    currentDate = today
+                                    
                                 if currentTime != now:
                                     user.sendall(str.encode(now + "\n"))
-                                    currentTime = now
                                 user.sendall(str.encode(reply))
+                        if currentDate != today:
+                            currentDate = today
+                        if currentTime != now:
+                            currentTime = now
                 print(clients)
             else:
                 clients[client] = ""
