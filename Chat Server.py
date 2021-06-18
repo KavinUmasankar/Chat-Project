@@ -59,10 +59,13 @@ def threaded_client(connection, client):
                         for user in clients:
                             if user:
                                 if currentDate != today:
-                                    user.sendall(str.encode(today + "\n"))
+                                    user.sendall(str.encode("\n" + today + "\n"))
                                     
                                 if currentTime != now:
-                                    user.sendall(str.encode(now + "\n"))
+                                    if currentDate != today:
+                                        user.sendall(str.encode(now + "\n"))
+                                    else:
+                                        user.sendall(str.encode("\n" + now + "\n"))
                                 user.sendall(str.encode(reply))
                         if currentDate != today:
                             currentDate = today
