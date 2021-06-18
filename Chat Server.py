@@ -9,6 +9,7 @@ currentTime = ""
 host = '192.168.1.96'
 port = 5353
 threadCount = 0
+lastUser = ""
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -32,6 +33,7 @@ class App(threading.Thread):
                 for client in clients:
                     if client:
                         counter += 1
+                time.sleep(3)
                 for client in clients:
                     if client:
                         client.sendall(str.encode("usernum" + str(counter)))
@@ -40,9 +42,10 @@ class App(threading.Thread):
                 continue
 
 def threaded_client(connection, client):
-    connection.sendall(str.encode(str(client)))
     global currentDate
     global currentTime
+    global lastUser
+    new = True
     while True:
         try:
             data = connection.recv(2048)
@@ -60,19 +63,31 @@ def threaded_client(connection, client):
                     for char in parse:
                         data += char
                     
-                    if len(data) > 5 and data[0:4] == "name":
-                        clientnames[client] = data[4:]
+                    if len(data) > 5 and data[0:4] == "name" and new:
+                        print(data)
+                        if data[4:] in clientnames.values():
+                            connection.sendall(str.encode("No"))
+                        else:
+                            clientnames[client] = data[4:]
+                            new = False
+                            connection.sendall(str.encode("Yes"))
                     else:
-                        reply = clientnames[client] + ": \n    " + data + "\n"
+                        if lastUser == clientnames[client]:
+                            reply = "    " + data + "\n"
+                        else:
+                            reply = clientnames[client] + ": \n    " + data + "\n"
+                            lastUser = clientnames[client]
                         for user in clients:
                             if user:
                                 user.sendall(str.encode(reply))
-                print(clients)
+                #print(clients)
             else:
                 clients[client] = ""
+                clientnames[client] = ""
                 break
         except:
             clients[client] = ""
+            clientnames[client] = ""
             break
     connection.close()
 
