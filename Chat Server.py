@@ -80,7 +80,6 @@ def threaded_client(connection, client):
                         for user in clients:
                             if user:
                                 user.sendall(str.encode(reply))
-                #print(clients)
             else:
                 clients[client] = ""
                 clientnames[client] = ""
