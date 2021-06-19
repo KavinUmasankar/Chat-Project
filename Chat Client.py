@@ -50,6 +50,7 @@ form.mainloop()
 
 win = tk.Tk()
 win.title("Chat Project")
+win.resizable(width = False, height = False)
 
 text_area = scrolledtext.ScrolledText(win, wrap = tk.WORD, width = 40, height = 10, font = ("Times New Roman", 15))
 text_area.grid(column = 0, row = 0, padx = 10, pady = 10)
@@ -120,6 +121,6 @@ class App(threading.Thread):
                         currentTime = now
             except:
                 break
-            
+
 app = App(client, text_area, usernum)
 win.mainloop()
